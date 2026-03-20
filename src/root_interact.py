@@ -13,7 +13,7 @@ plt.rcParams['agg.path.chunksize'] = 10_000
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-DEGREES      = list(range(1, 10))      # 1 – 9  (degree 0 has no roots)
+DEGREES      = list(range(1, 16))      # 1 – 15  (degree 0 has no roots)
 COEFF_VALUES = list(range(-5, 6))      # coefficient choices: -5 to 5 including 0
 INIT_DEGREES = [5]                     # checked on startup
 INIT_COEFFS  = [-1, 1]                # checked on startup
@@ -86,8 +86,8 @@ def _format_poly(degree, coeff_tuple):
 fig = plt.figure(figsize=(13, 9))
 
 ax          = fig.add_axes([0.20, 0.15, 0.77, 0.81])
-ax_deg_cb   = fig.add_axes([0.01, 0.57, 0.15, 0.37])
-ax_coeff_cb = fig.add_axes([0.01, 0.05, 0.15, 0.47])
+ax_deg_cb   = fig.add_axes([0.01, 0.43, 0.15, 0.50])
+ax_coeff_cb = fig.add_axes([0.01, 0.05, 0.15, 0.35])
 ax_xrange   = fig.add_axes([0.36, 0.08, 0.45, 0.03])
 ax_size     = fig.add_axes([0.36, 0.03, 0.45, 0.03])
 ax_fit      = fig.add_axes([0.22, 0.025, 0.038, 0.055])  # square: 0.038×13 ≈ 0.055×9
@@ -108,13 +108,13 @@ coeff_check = CheckButtons(
 
 slider_xrange = Slider(ax_xrange, 'Range', 0.1, 10,
                        valinit=INIT_RANGE, valstep=0.1)
-slider_size   = Slider(ax_size,  'Dot Size', 0.05, 5,
+slider_size   = Slider(ax_size,  'Dot Size', 0.01, 5,
                        valinit=INIT_DOT_PT2 / 10, valstep=0.01)
 btn_fit       = Button(ax_fit, 'Fit', hovercolor='0.85')
 
 # Panel headings
-fig.text(0.085, 0.955, 'Degree',       ha='center', fontsize=9, fontweight='bold')
-fig.text(0.085, 0.530, 'Coefficients', ha='center', fontsize=9, fontweight='bold')
+fig.text(0.085, 0.945, 'Degree',       ha='center', fontsize=9, fontweight='bold')
+fig.text(0.085, 0.025, 'Coefficients', ha='center', fontsize=9, fontweight='bold')
 
 # ── Static plot elements ─────────────────────────────────────────────────────
 

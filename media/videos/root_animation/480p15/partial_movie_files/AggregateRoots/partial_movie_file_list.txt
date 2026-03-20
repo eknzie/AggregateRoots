@@ -1,8 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/1584795214_1789013416_3245664933.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_3564902096_3245664933.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_4266278547_1902048594.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_4256855333_1902048594.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_2836870140_656291662.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_2706055478_656291662.mp4'
-file 'file:/Users/kenzielam/Desktop/GitHub/AggregateRoots/media/videos/root_animation/480p15/partial_movie_files/AggregateRoots/4072820271_2844360058_1934658857.mp4'

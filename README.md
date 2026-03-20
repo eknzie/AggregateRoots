@@ -2,9 +2,9 @@
 
 Visualizes the distribution of complex roots aggregated over all monic polynomials of a given degree with bounded integer coefficients.
 
-For each degree, every possible polynomial with coefficients in `[-bound, bound]` is generated and its roots are plotted on the complex plane. The result reveals beautiful fractal-like patterns in how polynomial roots cluster.
+For each selected degree, every polynomial whose non-leading coefficients come from a chosen set of integers is generated and its roots are plotted on the complex plane. The result reveals beautiful fractal-like patterns in how polynomial roots cluster.
 
-**Example output (degree 1–9, coefficients in [-1, 1]):**
+**Example output (degree 8, coefficients in [−1, 1]):**
 
 ![Root distribution](output/roots_deg8_int_coeff_[-1,1].png)
 
@@ -15,8 +15,8 @@ For each degree, every possible polynomial with coefficients in `[-bound, bound]
 ```
 AggregateRoots/
 ├── src/
+│   ├── root_interact.py       # Interactive explorer (main tool)
 │   ├── root_pattern.py        # Static plot of root distributions
-│   ├── root_interact.py       # Interactive explorer with zoom/pan
 │   └── root_animation.py      # Animated visualization (requires Manim)
 ├── output/                    # Sample generated images
 ├── media/                     # Manim animation output
@@ -84,7 +84,6 @@ Your terminal prompt should now show `(venv)` at the start. You'll need to do th
 
 ### Step 5 — Install Dependencies
 
-For the static plot and interactive explorer:
 ```bash
 pip install -r requirements.txt
 ```
@@ -98,15 +97,50 @@ pip install -r requirements-animation.txt
 ```bash
 pip install PyQt5
 ```
-Then open `src/root_interact.py` and uncomment the line near the top that reads `# matplotlib.use('QtAgg')`.
+Then open `src/root_interact.py` and uncomment the line near the top:
+```python
+# matplotlib.use('QtAgg')
+```
 
 ---
 
 ## Running the Scripts
 
+### Interactive Explorer — `root_interact.py`
+
+Opens a live window where you can explore root distributions interactively. This is the main tool.
+
+```bash
+python src/root_interact.py
+```
+
+**Controls:**
+
+| Control | What it does |
+|---|---|
+| **Degree checkboxes** (1–9) | Toggle which polynomial degrees are plotted; each degree has its own colour in a pink → violet rainbow |
+| **Coefficient checkboxes** (−5 to 5) | Select which integer values are allowed as polynomial coefficients |
+| **Range slider** | Adjusts the zoom level symmetrically around the current centre of the view |
+| **Dot Size slider** | Adjusts the size of every plotted dot uniformly (0.05 to 5, in steps of 0.01) |
+| **Fit button** | Fits the view to show all currently plotted roots |
+| **Toolbar** (bottom of window) | Zoom into a box (left-drag), zoom out (right-drag), pan (hand icon), reset view (home icon); scroll wheel also zooms |
+| **Click on a dot** | Shows which polynomial that root belongs to — displays the lowest-degree polynomial that has a root at that point |
+
+**Layer ordering:** lower degrees are always drawn on top — degree 1 is the topmost layer, degree 9 is the bottommost.
+
+**Click to identify:** click directly on any plotted root (when no toolbar mode is active) to see a tooltip with the polynomial and the root value. Click anywhere else to dismiss.
+
+**Performance notes:**
+- Fast (< 1 s): degree ≤ 7 with 2–3 coefficient values selected
+- Slow (several seconds): degree 8–9 or many coefficient values selected
+- Any combination requiring > 500,000 polynomials is skipped automatically and noted in the terminal
+- For smoother pan/zoom with large datasets, install PyQt5 (see Step 5)
+
+---
+
 ### Static Plot — `root_pattern.py`
 
-Generates a single image showing all polynomial roots for degrees 1–9.
+Generates a single static image showing all polynomial roots for a given degree and coefficient bound.
 
 ```bash
 python src/root_pattern.py
@@ -122,37 +156,6 @@ degrees = np.arange(1, 10) # degrees 1 through 9
 ```
 
 > Higher degrees or larger bounds increase computation time significantly.
-
----
-
-### Interactive Explorer — `root_interact.py`
-
-Opens a live window where you can explore root distributions interactively.
-
-```bash
-python src/root_interact.py
-```
-
-**Controls:**
-
-| Control | What it does |
-|---|---|
-| **Degree checkboxes** (1–9) | Toggle which degrees are plotted; each degree has its own colour (pink → violet rainbow) |
-| **Coefficient checkboxes** (−5 to 5) | Select which integer values are allowed as coefficients |
-| **Range slider** | Zooms both axes symmetrically (e.g. `2` → view from −2 to 2); keeps the plot square |
-| **Dot Size slider** | Adjusts the size of every plotted dot uniformly |
-| **Toolbar** (bottom of window) | Zoom into a box (left-drag), zoom out (right-drag), pan (hand icon), reset view (home icon); scroll wheel also zooms |
-
-**Layer ordering:** lower degrees always appear on top — degree 1 is the topmost layer, degree 9 is the bottommost. This is fixed regardless of the order you check them.
-
-**Performance notes:**
-- Fast (< 1 s): degree ≤ 7 with 2–3 coefficient values selected
-- Slow (several seconds): degree 8–9 or many coefficient values
-- Any combination that would require > 500,000 polynomials is skipped automatically and logged to the terminal
-- For smoother pan/zoom with large datasets, install PyQt5 and uncomment the backend line at the top of the file:
-  ```bash
-  pip install PyQt5
-  ```
 
 ---
 

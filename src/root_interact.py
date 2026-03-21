@@ -15,8 +15,8 @@ plt.rcParams['agg.path.chunksize'] = 10_000
 
 DEGREES      = list(range(1, 16))      # 1 – 15  (degree 0 has no roots)
 COEFF_VALUES = list(range(-10, 11))    # coefficient choices: -10 to 10 including 0
-INIT_DEGREES = [5]                     # checked on startup
-INIT_COEFFS  = [-1, 1]                # checked on startup
+INIT_DEGREES = [1,2,3,4,5,6]                     # checked on startup
+INIT_COEFFS  = [0, 1]                # checked on startup
 COMBO_LIMIT  = 500_000                # skip a degree if it would need more polys than this
 INIT_DOT_PT2 = 4.0                    # default dot area in pt²
 INIT_RANGE   = 2.0                    # default half-width for both axes

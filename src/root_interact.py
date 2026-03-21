@@ -206,11 +206,12 @@ def _dot_size():
 
 
 def _apply_sizes(event=None):
-    s = _dot_size()
-    for scat in scats.values():
-        n = len(scat.get_offsets())
-        if n:
-            scat.set_sizes(np.full(n, s))
+    for d in DEGREES:
+        n = len(scats[d].get_offsets())
+        if not n:
+            continue
+        sizes = _sized_from_counts(d)
+        scats[d].set_sizes(sizes if sizes is not None else np.full(n, _dot_size()))
     fig.canvas.draw_idle()
 
 
@@ -233,7 +234,7 @@ _root_meta = {}
 
 _color_mode    = ['fixed']
 _gradient_flip = [False]
-_dot_sats      = {}    # {degree: np.array of per-dot saturation values in [0, 1]}
+_dot_counts    = {}    # {degree: np.array of per-dot repeat counts (int)}
 
 
 def _degree_color(d, active_degs):
@@ -249,49 +250,41 @@ def _degree_color(d, active_degs):
     return cmap(1.0 - t if _gradient_flip[0] else t)
 
 
-def _compute_sats(roots, polys):
+def _compute_counts(roots, polys):
     """
     For each root, count how many distinct polynomials produced a root at that
-    location (rounded to 4 d.p.), then map counts → saturation in [0.15, 1.0]
-    via log scale normalised to the maximum count in this degree.
+    location (rounded to 4 d.p.).  Returns an integer array, same length as roots.
     """
     if len(roots) == 0:
-        return np.array([])
+        return np.array([], dtype=int)
     from collections import defaultdict
-    rounded = np.round(roots.real, 4) + 1j * np.round(roots.imag, 4)
+    rounded   = np.round(roots.real, 4) + 1j * np.round(roots.imag, 4)
     poly_sets = defaultdict(set)
     for r, p in zip(rounded, polys):
         poly_sets[r].add(p)
-    counts   = np.array([len(poly_sets[r]) for r in rounded], dtype=float)
-    max_cnt  = max(counts.max(), 1.0)
-    return np.clip(np.log1p(counts) / np.log1p(max_cnt), 0.5, 1.0)
+    return np.array([len(poly_sets[r]) for r in rounded], dtype=int)
 
 
-def _dot_colors(d, active_degs):
+def _sized_from_counts(d):
     """
-    Return an (N, 4) RGBA array for degree d's dots, blending white → degree colour
-    according to each dot's repeat-saturation value.
-    Returns None if there are no saturation values stored.
+    Return per-dot size array for degree d scaled by repeat count:
+      - most-repeated root  → full slider size
+      - least-repeated root → 30 % of slider size
+    Returns None if no count data is stored for d.
     """
-    if d not in _dot_sats or len(_dot_sats[d]) == 0:
+    if d not in _dot_counts or len(_dot_counts[d]) == 0:
         return None
-    base = np.array(_degree_color(d, active_degs)[:3])
-    sats = _dot_sats[d][:, np.newaxis]          # (N, 1)
-    face = np.ones((len(_dot_sats[d]), 4))
-    face[:, :3] = 1.0 - sats + base * sats      # blend white → base
-    face[:, 3]  = 0.6
-    return face
+    counts  = _dot_counts[d].astype(float)
+    max_cnt = max(counts.max(), 1.0)
+    frac    = 0.3 + 0.7 * np.log1p(counts) / np.log1p(max_cnt)
+    return _dot_size() * frac
 
 
 def _recolor(active_degs):
-    """Apply per-dot gradient colours, checkbox labels, and the legend."""
+    """Apply flat degree colours to dots, update checkbox labels, and rebuild legend."""
     for d in DEGREES:
         base_color = _degree_color(d, active_degs)
-        colors = _dot_colors(d, active_degs)
-        if colors is not None:
-            scats[d].set_facecolors(colors)
-        else:
-            scats[d].set_facecolor(base_color)
+        scats[d].set_facecolor(base_color)
         deg_check.labels[DEGREES.index(d)].set_color(base_color)
 
     # Rebuild legend with fixed full-saturation degree colours
@@ -343,7 +336,7 @@ def update(label=None):
         if d not in active_degs or not active_coeffs:
             scats[d].set_offsets(np.empty((0, 2)))
             _root_meta.pop(d, None)
-            _dot_sats.pop(d, None)
+            _dot_counts.pop(d, None)
             continue
 
         n_leading = len(active_coeffs) - (1 if 0 in active_coeffs else 0)
@@ -352,7 +345,7 @@ def update(label=None):
             print(f'[skip] degree {d}: {n_combos:,} combinations > limit {COMBO_LIMIT:,}')
             scats[d].set_offsets(np.empty((0, 2)))
             _root_meta.pop(d, None)
-            _dot_sats.pop(d, None)
+            _dot_counts.pop(d, None)
             continue
 
         roots, polys = compute_roots_with_meta(d, active_coeffs)
@@ -361,14 +354,16 @@ def update(label=None):
         polys  = [p for p, v in zip(polys, valid) if v]
 
         if len(roots):
+            counts = _compute_counts(roots, polys)
+            _dot_counts[d]  = counts
+            _root_meta[d]   = {'roots': roots, 'polys': polys}
             scats[d].set_offsets(np.column_stack([roots.real, roots.imag]))
-            scats[d].set_sizes(np.full(len(roots), _dot_size()))
-            _dot_sats[d] = _compute_sats(roots, polys)
-            _root_meta[d] = {'roots': roots, 'polys': polys}
+            sizes = _sized_from_counts(d)
+            scats[d].set_sizes(sizes if sizes is not None else np.full(len(roots), _dot_size()))
         else:
             scats[d].set_offsets(np.empty((0, 2)))
             _root_meta.pop(d, None)
-            _dot_sats.pop(d, None)
+            _dot_counts.pop(d, None)
 
     _recolor(active_degs)   # called after sats are computed so dot colours are correct
 
